@@ -81,7 +81,7 @@ def edit(S,token,title,content,summary,bot,basetimestamp,starttimestamp,minor=Fa
         "token": token,
         "format": "json",
         "text": content,
-        "summary":"Edit via [[User:Emojiwiki/TextWikiPlus|TextWikiPlus]] : "+summary,
+        "summary":"Noref Bot : "+summary,
         "bot":bot,
         "headers":{'Content-Type': 'multipart/form-data'},
         "basetimestamp":basetimestamp,
@@ -195,7 +195,6 @@ def random(S,ns):
         "action":"query",
         "list":"random",
         "rnlimit":1,
-        "rnnamespace":0,
         "utf8":"",
         "format":"json",
         "rnnamespace":ns,
@@ -207,7 +206,7 @@ def random(S,ns):
         return [False,DATA["error"]["code"],DATA["error"]["info"]]
     except KeyError:
         return [True,"Success",DATA["query"]["random"][0]["title"]]
-        print(DATA["query"]["random"][0]["title"])
+        # print(DATA["query"]["random"][0]["title"])
 
 def nsinfo(S):
     PARAMS = {
@@ -334,3 +333,31 @@ def usercontribs(S,uname):
         return [False,DATA["error"]["code"],DATA["error"]["info"]]
     except KeyError:
         return [True,DATA["query"]["usercontribs"]]
+
+def prependedit(S,token,title,prependtext,summary,bot,basetimestamp,starttimestamp,minor=False,nocreate=False): # csrf token required
+    PARAMS_3 = {
+        "action": "edit",
+        "title": title,
+        "token": token,
+        "format": "json",
+        "prependtext": prependtext,
+        "summary":"Noref Bot : "+summary,
+        "bot":bot,
+        "headers":{'Content-Type': 'multipart/form-data'},
+        "basetimestamp":basetimestamp,
+        "starttimestamp":starttimestamp,
+    }
+    if minor == True:
+        z = PARAMS_3.copy()
+        z.update({"minor":True})
+        PARAMS_3 = z
+    R = S.post(URL[0], data=PARAMS_3)
+    DATA = R.json()
+    debugctl(DATA)
+    try:
+        if DATA["edit"]["result"] == "Success":
+            return [True,"Success",""]
+        else:
+            raise KeyError
+    except KeyError:
+        return [False,DATA["error"]["code"],DATA["error"]["info"]]
