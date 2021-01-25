@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
 from modules import mediawiki as mw
 import xml.etree.ElementTree as ET
 from mwtemplates import TemplateEditor
@@ -43,38 +45,44 @@ def GetHostNameList(reflist):
         hostnames = hostnames + [puri.netloc]
     return hostnames
 
-def OneSources(hostnamelist):
+def OneSources(hostnamelist,cont):
     a = dict(Counter(hostnamelist))
     print(len(a))
-    if len(a) == "1":
+    if "單一來源".upper(),"One source".upper(),"单一来源".upper() in cont:
+        return ""
+    elif len(a) == "1":
         return "{{subst:Onesource/auto}}\n"
     else:
         return ""
 
-def FootNotes(reflist):
+def FootNotes(reflist,cont):
     refs = reflist[0]
     reftags = reflist[1]
-    if reftags == 0:
+    if "Nofootnotes".upper(),"缺乏注脚".upper(),"缺乏脚注".upper(),"缺少脚注".upper(),"Inline".upper(),"沒有註腳".upper(),"沒有腳註".upper(),"更多引註".upper(),"More footnotes".upper() in cont:
+        return ""
+    elif reftags == 0:
         return "{{subst:No footnotes/auto}}"
     elif reftags <= (len(refs)/2):
         return "{{subst:More footnotes needed/auto}}"
     else:
         return ""
 
-def Unref(reflist):
+def Unref(reflist,cont):
     refs = reflist[0]
-    if len(refs) == 0:
+    if "Unsourced".upper(),"缺少來源的條目".upper(),"Unref".upper(),"Unreference".upper(),"缺乏來源".upper(),"Reference".upper(),"Noreference".upper(),"Noreferences".upper(),"来源".upper(),"沒有來源".upper(),"無來源".upper(),"沒來源".upper(),"缺來源".upper(),"缺少來源".upper(),"Noref".upper(),"No reference".upper(),"No references".upper(),"需要來源".upper() in cont:
+        return ""
+    elif len(refs) == 0:
         return "{{subst:Unreferenced/auto}}"
     else:
         return ""
 
 # Main Part
-def TemplateHandler(reflist):
+def TemplateHandler(reflist,cont):
     ASTR = ""
-    HLIST = GetHostNameList(reflist)
-    ASTR = ASTR + OneSources(HLIST)
-    ASTR = ASTR + FootNotes(reflist)
-    ASTR = ASTR + Unref(reflist)
+    HLIST = GetHostNameList(reflist,cont)
+    ASTR = ASTR + OneSources(HLIST,cont)
+    ASTR = ASTR + FootNotes(reflist,cont)
+    ASTR = ASTR + Unref(reflist,cont)
     return ASTR
 
 def PageHandler(title):
@@ -88,7 +96,7 @@ def PageHandler(title):
         log.warning("Page " + title + "Have no content or not exist!")
         return False
     reflist = GetRefList(CONT)
-    Templates = TemplateHandler(reflist)
+    Templates = TemplateHandler(reflist,CONT.upper())
     if Templates == "":
         log.info("Page " + title + " have no templates. Skipping.")
     EDIT = mw.prependedit(S,token,title,Templates,"Bot add templates",True,TS,starttimestamp,False,True)
