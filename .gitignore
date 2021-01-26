@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 uname.txt
 passwd.txt
+root.txt

@@ -23,8 +23,8 @@ def token(S,ttype):
         'curtimestamp':True,
     }
     R = S.get(url=URL[0], params=PARAMS_0)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
     LOGIN_TOKEN = DATA['query']['tokens'][ttype+'token']
     return [LOGIN_TOKEN,DATA["curtimestamp"]]
 
@@ -34,11 +34,11 @@ def login(S,token,uname,passwd): # require "login" type token
         'lgname':uname,
         'lgpassword':passwd,
         'lgtoken':token,
-        'format':"json"
+        'format':"json",
     }
     R = S.post(URL[0], data=PARAMS_1)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
     status = DATA["login"]["result"]
     if status == "Success":
         return [True,DATA["login"]["lgusername"]]
@@ -56,8 +56,9 @@ def getpage(S,title): # no token required
         'format':"json"
     }
     R = S.get(URL[0], params=PARAMS)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
+    #debugctl(DATA)
     TS = "1970-01-01T00:00:01+00:00"
     try:
         TS = DATA["query"]["pages"][0]["revisions"][0]["timestamp"]
@@ -92,8 +93,9 @@ def edit(S,token,title,content,summary,bot,basetimestamp,starttimestamp,minor=Fa
         z.update({"minor":True})
         PARAMS_3 = z
     R = S.post(URL[0], data=PARAMS_3)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
+    #debugctl(DATA)
     try:
         if DATA["edit"]["result"] == "Success":
             return [True,"Success",""]
@@ -109,8 +111,9 @@ def whoami(S):
         "meta": "userinfo",
     }
     R = S.get(URL[0], params=PARAMS)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
+    #debugctl(DATA)
     return DATA["query"]["userinfo"]
 
 def logout(S,token): #require csrf token
@@ -120,8 +123,9 @@ def logout(S,token): #require csrf token
         "format": "json"
     }
     R = S.post(URL[0], data=PARAMS_3)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
+    #debugctl(DATA)
     if DATA == {}:
         return [True,"Success",""]
     else:
@@ -139,8 +143,9 @@ def revisions(S,title):
         "rvlimit":500,
     }
     R = S.get(url=URL[0], params=PARAMS)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
+    #debugctl(DATA)
     PAGES = DATA["query"]["pages"]
     try:
         tmp = PAGES[0]["missing"]
@@ -157,8 +162,9 @@ def rollback(S,token,title,username): #rollback token required
         "token": token,
     }
     R = S.post(URL[0], data=PARAMS_6)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
+    #debugctl(DATA)
     try:
         return [False,DATA["error"]["code"],DATA["error"]["info"]]
     except KeyError:
@@ -180,8 +186,9 @@ def undo(S,token,title,id,bot,minor=False,reason=""): # csrf token required
         z.update({"minor":True})
         PARAMS_3 = z
     R = S.post(URL[0], data=PARAMS_3)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
+    #debugctl(DATA)
     try:
         if DATA["edit"]["result"] == "Success":
             return [True,"Success",""]
@@ -200,8 +207,9 @@ def random(S,ns):
         "rnnamespace":ns,
     }
     R = S.get(url=URL[0], params=PARAMS)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
+    #debugctl(DATA)
     try:
         return [False,DATA["error"]["code"],DATA["error"]["info"]]
     except KeyError:
@@ -217,8 +225,9 @@ def nsinfo(S):
         "siprop":"namespaces",
     }
     R = S.get(url=URL[0], params=PARAMS)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
+    #debugctl(DATA)
     try:
         return [False,DATA["error"]["code"],DATA["error"]["info"]]
     except KeyError:
@@ -233,8 +242,9 @@ def wikiinfo(S):
         "siprop":"general",
     }
     R = S.get(url=URL[0], params=PARAMS)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
+    #debugctl(DATA)
     try:
         return [False,DATA["error"]["code"],DATA["error"]["info"]]
     except KeyError:
@@ -250,8 +260,9 @@ def exinfo(S):
         "siprop":"extensions",
     }
     R = S.get(url=URL[0], params=PARAMS)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
+    #debugctl(DATA)
     try:
         return [False,DATA["error"]["code"],DATA["error"]["info"]]
     except KeyError:
@@ -266,8 +277,9 @@ def getimage(S,iname):
         "iiprop":"URL[0]",
     }
     R = S.get(url=URL[0], params=PARAMS)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
+    #debugctl(DATA)
     PAGES = next(iter(DATA["query"]["pages"].values()))
     IURL[0] = ""
     try:
@@ -286,8 +298,9 @@ def userinfo(S,uname):
         "utf8": "",
     }
     R = S.get(url=URL[0], params=PARAMS)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
+    #debugctl(DATA)
     try:
         return [False,DATA["error"]["code"],DATA["error"]["info"]]
     except KeyError:
@@ -312,8 +325,9 @@ def emailuser(S,token,target,subj,text): # csrf token required
         "format": "json"
     }
     R = S.post(URL[0], data=PARAMS_3)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
+    #debugctl(DATA)
     try:
         return [False,DATA["error"]["code"],DATA["error"]["info"]]
     except KeyError:
@@ -328,6 +342,7 @@ def usercontribs(S,uname):
         "uclimit": 50
     }
     R = S.get(url=URL[0], params=PARAMS)
+    debugctl(R.text)
     DATA = R.json()
     try:
         return [False,DATA["error"]["code"],DATA["error"]["info"]]
@@ -352,8 +367,9 @@ def prependedit(S,token,title,prependtext,summary,bot,basetimestamp,starttimesta
         z.update({"minor":True})
         PARAMS_3 = z
     R = S.post(URL[0], data=PARAMS_3)
+    debugctl(R.text)
     DATA = R.json()
-    debugctl(DATA)
+    #debugctl(DATA)
     try:
         if DATA["edit"]["result"] == "Success":
             return [True,"Success",""]
