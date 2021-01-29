@@ -138,6 +138,19 @@ def main():
     root = fileget("root.txt")
     if uname == False or passwd == False or root == False:
         exit(3)
+    delay = 0
+    try:
+        delay = int(fileget("delay.txt"))
+        if delay == 0:
+            raise FileNotFoundError
+    except FileNotFoundError:
+        log.warning("delay.txt not found! using 5 seconds as the delay.")
+        delay = 5
+    except ValueError:
+        log.error("Invalid int in delay.txt!")
+        exit(3)
+    finally:
+        log.info("got delay.txt with " + str(delay) + " seconds delay")
     mw.chroot(root)
     token = mw.token(S,"login")[0]
     status = mw.login(S,token,uname,passwd)
@@ -169,7 +182,7 @@ def main():
             raise CustomError
         except CustomError:
             try:
-                time.sleep(5)
+                time.sleep(delay)
                 continue
             except KeyboardInterrupt:
                 log.info("Ctrl-C pressed, exiting")
