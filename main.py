@@ -31,6 +31,31 @@ def GetRefList(content):
     reflist = reflist + re.findall(r'\{\{fishBase_species.+?}}',content)
     return [list(dict.fromkeys(reflist)),len(list(dict.fromkeys(reftaglist)))]
 
+def AllRedir(names):
+    for a in names:
+        RE = mw.redirects(S,a)
+        if RE[0] == False:
+            continue
+        RLST = RLST + RE[2]
+        RLST = RLST + [a]
+    return RLST
+
+def remove_prefix(text, prefix):
+    return text[text.startswith(prefix) and len(prefix):]
+
+def ListRMIndex(lst,prefix):
+    RLST = []
+    for a in lst:
+        RLST = RLST + [remove_prefix(a, prefix)]
+    return RLST
+
+def TemplateNames(title):
+    ared = AllRedir(mw.prefixsearch(S,title))
+    rmpfix = ListRMIndex(ared,"Template:")
+    # found(cont,rmpfix)
+    return rmpfix
+
+
 def refURL(text):
     if "{{" not in text:
         return False
@@ -55,10 +80,17 @@ def GetHostNameList(reflist):
         hostnames = hostnames + [puri.netloc]
     return hostnames
 
+tps = {
+    "ones": TemplateNames("Template:Onesource"),
+    "nfoot": TemplateNames("Template:No footnotes"),
+    "mfoot": TemplateNames("Template:More footnotes needed"),
+    "noref": TemplateNames("Template:Unreferenced"),
+}
+
 def OneSources(hostnamelist,cont):
     a = dict(Counter(hostnamelist))
     print(len(a))
-    if found(cont,totable("單一來源".upper(),"One source".upper(),"单一来源".upper(),"Onesource".upper())):
+    if found(cont,tps["ones"]):
         return ""
     elif len(a) == "1":
         return "{{subst:Onesource/auto}}\n"
@@ -68,7 +100,7 @@ def OneSources(hostnamelist,cont):
 def FootNotes(reflist,cont):
     refs = reflist[0]
     reftags = reflist[1]
-    if found(cont,totable("Nofootnotes".upper(),"缺乏注脚".upper(),"缺乏脚注".upper(),"缺少脚注".upper(),"Inline".upper(),"沒有註腳".upper(),"沒有腳註".upper(),"更多引註".upper(),"No footnotes".upper(),"More footnotes".upper())):
+    if found(cont,tps["nfoot"] + tps["mfoot"]):
         return ""
     elif reftags == 0:
         return "{{subst:No footnotes/auto}}"
@@ -79,7 +111,7 @@ def FootNotes(reflist,cont):
 
 def Unref(reflist,cont):
     refs = reflist[0]
-    if found(cont,totable("Unsourced".upper(),"缺少來源的條目".upper(),"Unref".upper(),"Unreference".upper(),"缺乏來源".upper(),"Reference".upper(),"Noreference".upper(),"Noreferences".upper(),"来源".upper(),"沒有來源".upper(),"無來源".upper(),"沒來源".upper(),"缺來源".upper(),"缺少來源".upper(),"Noref".upper(),"No reference".upper(),"No references".upper(),"需要來源".upper())):
+    if found(cont,tps["noref"]):
         return ""
     elif len(refs) == 0:
         return "{{subst:Unreferenced/auto}}"

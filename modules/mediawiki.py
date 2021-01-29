@@ -377,3 +377,54 @@ def prependedit(S,token,title,prependtext,summary,bot,basetimestamp,starttimesta
             raise KeyError
     except KeyError:
         return [False,DATA["error"]["code"],DATA["error"]["info"]]
+
+def redirects(S,title):
+    PARAMS = {
+        "action": "query",
+        "format": "json",
+        "titles": title,
+        "prop": "redirects"
+    }
+    R = S.get(url=URL[0], params=PARAMS)
+    debugctl(R.text)
+    DATA = R.json()
+    try:
+        return [False,DATA["error"]["code"],DATA["error"]["info"]]
+    except KeyError:
+        PAGES = DATA["query"]["pages"]
+        for k, v in PAGES.items():
+            if int(k) < 0:
+                return [False,"SpecialPage",""]
+            else:
+                try:
+                    return [False,"missing",v["missing"]]
+                except KeyError:
+                    pass
+                REDIRS = []
+                try:
+                    REDIRS = v["redirects"]
+                except KeyError:
+                    return [True,"Success",[]]
+                RLST = []
+                for re in REDIRS:
+                    RLST = RLST + [re["title"]]
+                return [True,"Success",RLST]
+
+def prefixsearch(S,prefix):
+    PARAMS = {
+        "action": "query",
+        "format": "json",
+        "list": "prefixsearch",
+        "pssearch": prefix
+    }
+    R = S.get(url=URL[0], params=PARAMS)
+    debugctl(R.text)
+    DATA = R.json()
+    try:
+        return [False,DATA["error"]["code"],DATA["error"]["info"]]
+    except KeyError:
+        PAGES = DATA['query']['prefixsearch']
+        RLST = []
+        for page in PAGES:
+            RLST = RLST + [page["title"]]
+        return RLST
