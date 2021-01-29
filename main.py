@@ -23,7 +23,8 @@ def found(text,l):
 
 def GetRefList(content):
     reflist = []
-    reftaglist = re.findall(r'<ref>(.+?)</ref>|<ref name.+?>(.+?)</ref>', content)
+    reftaglist = re.findall(r'<ref>(.+?)</ref>', content)
+    reftaglist = reftaglist + re.findall(r'<ref name.+?>(.+?)</ref>', content)
     reflist = reflist + reftaglist
     reflist = reflist + re.findall(r'\{\{Cite.+?}}',content)
     reflist = reflist + re.findall(r'\{\{FishBase_species.+?}}',content) # FishBase_species
@@ -164,6 +165,7 @@ def main():
             title = RAN[2]
             log.info("Processing " + title)
             PageHandler(title)
+            log.info("Finished process of " + title)
             raise CustomError
         except CustomError:
             try:
